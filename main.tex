@@ -1,0 +1,177 @@
+\documentclass[utf8,11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{fullpage}
+\usepackage{authblk}
+\usepackage{geometry}
+\usepackage{amsthm,amsmath,amssymb}
+\usepackage{xcolor}
+\usepackage[pdftex, plainpages = false, pdfpagelabels, 
+%pdfpagelayout = useoutlines,
+bookmarks=false,
+bookmarksopen = true,
+bookmarksnumbered = true,
+breaklinks = true,
+linktocpage,
+pagebackref,
+colorlinks = true,  % was true
+linkcolor = blue,
+urlcolor  = blue,
+citecolor = red,
+anchorcolor = green,
+hyperindex = true,
+hyperfigures
+]{hyperref} 
+\usepackage[textwidth=1.1in]{todonotes}
+\setlength{\marginparwidth}{2cm}
+\makeatletter
+\newcommand\tinyv{\@setfontsize\tinyv{4pt}{6}}
+\makeatother
+\usepackage{natbib}
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{fact}[theorem]{Fact}
+\newtheorem{observation}[theorem]{Observation}
+\newtheorem{claim}{Claim}[theorem]
+
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}[theorem]{Example}
+\newtheorem{conjecture}[theorem]{Conjecture}
+\newtheorem{open}[theorem]{Open Problem}
+\newtheorem{problem}[theorem]{Problem}
+\newtheorem{question}[theorem]{Question}
+\title{Finding a non-shortest path in directed graphs}
+\author{}
+\date{}
+\newcommand{\cst}{c}
+\newcommand{\tanmay}[1]{\todo[size=\tinyv]{ TI: #1}}
+\newcommand{\lr}[1]{\left(#1\right)}
+\newcommand{\LR}[1]{\left\{#1\right\}}
+\newcommand{\red}[1]{{\color{red}#1}}
+\newcommand{\cP}{\mathcal{P}}
+\newcommand{\cO}{\mathcal{O}}
+\begin{document}
+\maketitle 
+
+We use $\odot$ for concatenation of paths.
+
+\begin{theorem}\label{proof:main} 
+    Shortest detour in directed graphs can be found in polynomial time. 
+\end{theorem}
+
+Let $D = (V,A)$ be a directed graph with $n$ vertices and $m$ arcs, and $s,t \in V(D)$. We assume that there exists at least one $st$-path in $D$. The goal is to find an $st$-path which is not a shortest $st$-path. We denote by $d(u,v)$ the length of a shortest $uv$-path. A $uv$-\textit{detour} is a $uv$-path whose length is strictly greater than $d(u,v)$.
+
+Let $L_i$ denote the set of vertices at distance $i$ from $s$ and let $V'$ denote the set of vertices that belong to a shortest $st$-path. We denote by $L'_i = L_i \cap V'$ and note that $L'_1, \dots, L'_t$ is a partition of $V' \setminus \{s,t\}$ where $t = d(s,v)$. Let $D'$ denote the subgraph of $D$ induced by $V'$, where we add for every pair of vertices $uv$ of $D'$ an arc $uv$ if there exists a $uv$-path in $D$ whose internal vertices do not belong to $V'$. Let $A'$ denote the arc set of $D'$, we will associate a weight with every arc in $A'$. 
+
+The arcs of $D'$ can be partitioned into three sets: 
+\begin{itemize}
+    \item Arcs of the form $uv \in$ with $u \in L'_{i}$ and $v \in L'_{i+1}$ for some $i \in [t-1]$. These arcs are called \textit{forward} arcs. The weight of these arcs is always 1.
+    \item Arcs of the form $uv$ with $u \in L'_{i}$ and $v \in L'_{j}$ for some $i,j \in [t]$ with $1 \leq j < i \leq t$. These arcs are called \textit{backward} arcs. The weight $w(uv)$ of such an arc is defined as the shortest $uv$-path in $D$ whose internal vertices do not belong to $V'$. 
+    \item Arcs of the form $uv$ with $u,v \in L'_{j}$ for $j \in [t]$. These arcs are called \textit{crossing} arcs and the weight is also defined as the shortest $uv$-path in $D$ whose internal vertices do not belong to $V'$.
+\end{itemize}
+
+\begin{lemma}
+    Finding a shortest $st$-detour in $D$ is equivalent to finding a shortest $st$-detour in $D'$.
+\end{lemma}
+
+\begin{proof}
+It is clear from the definition that shortest $st$-paths in $D'$ are exactly the shortest $st$-paths in $D$. Moreover, suppose $P$ is an $st$-detour in $D'$, then every arc of $P$ either corresponds to an arc of $D$ or a path between the two endpoints. Therefore, this corresponds to a walk in $D$ of the same length. Moreover, vertices of $D'$ can only appear once, which means that the $st$-path obtained by simplyfing this walk is an $st$-detour in $D$. Finally, any $st$-detour in $D$ can be mapped to an $st$-detour in $D'$ by replacing every subpath whose internal vertices do not belong to $V'$ by the corresponding arc. Therefore, finding a shortest $st$-detour in $D$ is equivalent to finding a shortest $st$-detour in $D'$. 
+\end{proof}
+
+
+\begin{lemma}
+    Suppose $P$ is a shortest $st$-detour in $D'$. If $P$ contains a crossing arc, then it contains only one such arcs and no backward arcs.
+\end{lemma}
+
+\begin{proof}
+    This immediately follows from the definition.
+\end{proof}
+
+Therefore, finding a shortest $st$-detour in $D'$ that uses crossing arcs can easily be done by taking the crossing arc of minimum weight. The rest of the proof focuses on finding a shortest $st$-detour in $D'$ that does not use crossing arcs, so we might assume that this set is empty. 
+
+Let $P$ be a shortest $st$-detour in $D'$, $P$ must then be using at least one backward arc. Let $u$ be the tail of the first backward arc of $P$ and denote by $z$ the integer such that $u \in L'_z$. Let $v$ be the second vertex of $P$ in $L'_z$. By definition, we know that $P[u,v]$ is entirely contained in $L'_1, \dots, L'_{z-1}$ and therefore by minimality, $P[v,t]$ is a shortest $vt$-path in $D'$. This motivates the following definition.
+
+\begin{definition}
+    Let $P$ be a $st$-detour in $D'$. and let $u$ and $v$ be two distinct vertices of $P$ in the same level $L'_z$ for some $z \in [t]$. We say that $(u,v)$ are the \textit{breaking points} of $P$ if $P[s,u]$ is a shortest $su$-path, $P[u,v]$ is entirely contained in $L'_1, \dots, L'_{z-1}$ and $P[v,t]$ is a shortest $vt$-path in $D'$.
+\end{definition}
+
+By the previous discussion, we know that any shortest $st$-detour $P$ in $D'$ must have two breaking points and the algorithm will work by enumerating all possible pairs, and return the minimum length detour obtained.
+
+\subsection*{Finding a shortest detour with fixed breaking points}
+
+Let us now fix $u$ and $v$ two vertices in $L'_z$ and let us assume $(u,v)$ are the breaking points of the shortest detour $P$. Note that by definition, $P[v,t]$ can be replaced by any shortest $vt$-path in $D'$. Therefore, the problem reduces to finding two disjoint paths $P_1$, $P_2$, where $P_1$ is a shortest $su$-path and $P_2$ is a $uv$-path entirely contained in $L'_1, \dots, L'_{z-1}$ that minimizes the length of $P_2$. Note that, while $P_1$ only uses forward arcs, $P_2$ must use at least one backward arcs, and possibly many. For every $uv$ path $P'$ that uses backward arcs, if we denote by $xy$ the last backward arc of $P'$, then we will say that $P'[y,v]$ is the \textit{final part} of $P'$. In a way, when looking for $P_1$ and $P_2$, we do not really need $P_1$ and $P_2$ to be disjoint, but rather that $P_1$ and the \textbf{final part} of $P_2$ are disjoint. Indeed, suppose that $P'_1$ is a $su$-path using only forward arcs, and $P'_2$ is a $uv$-path whose final part is disjoint from $P'_1$ and only uses vertices in $L'_1, \dots, L'_{z-1}$ as internal vertices. Let $xy$ be the last backward arc of $P'_2$, then $P'_1$ and $P'_2[y,v]$ are disjoint. Now if $P'_1$ and $P'_2[u,y]$ intersect, we can extract from this closed walk a $sy$-path $P_{s,y}$ which is interally contained in $L'_1, \dots, L'_{z-1}$ and whose total length is at most the sum of $|P'_1| + |P'_2[u,y]|$. Therefore, if $P_3$ denote any shortest $vt$-path in $D'$, then the union of $P_{s,y}$, $xy$, $P'_2[y,v]$ and $P_3$ is a $st$-detour whose length is at most $|P'_1| + |P'_2| + |P_3|$. (TODO: figure) This detour has a different pair of breaking points, but this does not matter since we are enumerating all possible pairs.
+
+%Note that Abusing notation, all the detours mentionned in this section will concern detours with $(u,v)$ as breaking points. So in particular, when we say shortest detour, we mean shortest detour with $(u,v)$ as breaking points.
+
+The algorithm will proceed in iterations, where at each iteration, it will maintain a set of vertices $V$ that can be used in $P_1$, initialized as the union of $L'_1, \dots, L'_{z}$. It will also compute the set of vertices $R_{V} \subseteq V'$ such that for every $r \in R_V$, we can find two disjoint paths in $D'$: a $rv$-path $P_{r,v}$ and a $su$-path $P_{s,u} \subseteq V$ that uses forward arcs in $D'$. Intuitively, $R_V$ corresponds to the set of vertices that could potentially be in the last part of $P_2$. Note that because we are only using forward arcs, finding such paths can be done in polynomial time using the standard disjoint paths in DAGs algorithm. We will say that $R_V$ is the set \textit{associated} to $V$. This definition depends on $u$ and $v$, however since we assumed that these two vertices are fixed, we allow ourselve this abuse of notation. Note that, using the previous notation, all the vertices of $P_{r,v}$ must be contained in $R_V$. Indeed, if $x \in P_{r,v}$, then $P_{r,v}[r,x]$ and $P_{s,u}$ are two disjoint paths using only forward arcs.
+
+In each iteration, the algorithm will have two separates task. The first one is to find the pair of paths $P'_1$ and $P'_2$ with the following properties: 
+\begin{itemize}
+    \item $P'_1$ is a shortest $su$-path using only vertices of $V$ and forward arcs of $D'$.
+    \item $P'_2$ is a $uv$-path whose final part is disjoint from $P'_1$ and only uses vertices in $R_V \cup \{v\}$. Moreover, $P'_2$ does not use any vertex of $R_V$ before its last backward arc.
+    \item The length of $P'_2$ is minimized.
+\end{itemize}
+We call any pair of paths respecting the first two properties a \textit{valid pair} of paths for $V$. Note that by the previous discussion, having a valid pair gives rises to a $st$-detour of length at most $|P'_1| + |P'_2| + d(v,t)$. The following lemma basically follows from doing a shortest path algorithm in $(L'_1 \cup, L'_2, \dots, L'_{z} )\setminus R_V$. 
+
+\begin{lemma}\label{lem:valid_pair}
+    Given $V$ and its associated set $R_V$, finding a valid pair of paths $P'_1$ and $P'_2$ for $V$ that minimizes $|P'_2|$ can be done in polynomial time. 
+\end{lemma}
+The second task of the algorithm is to update the sets $V$ and remove vertices that cannot be used in $P_1$. This is the hard part of the algorithm and the goal will be to maintain the following invariant: 
+
+\textbf{Invariant:} If the algorithm has not yet found a detour of length at most the shortest $st$-detour with $(u,v)$ as breaking points, then there exists a shortest $st$-detour $P$ with $(u,v)$ as breaking points such that $P_1$ is entirely contained in $V$.
+
+To maintain the invariant throghout the algorithm, we will use the following lemma. 
+
+\begin{lemma}\label{lem:update_V},
+    There exists an algorithm running in polynomial time such that the following properties are satisfied. 
+    Suppose that $V$ is a set of vertices such that some shortest $st$-detour $P$ with $(u,v)$ as breaking points has its $P_1$ entirely contained in $V$. Moreover, suppose that no valid pair for $V$ gives rises to a shortest $st$-detour. Then the algorithm returns a set $V' \subset V$ such that $P_1$ is entirely contained in $V'$.
+\end{lemma}
+
+Using the algorithm of the previous lemmas, the overall algorithm for a pair $(u,v)$ works as follows. We initialize $V$ as the union of $L'_1, \dots, L'_{z}$ and repeat the following two steps until $V$ is empty.
+\begin{itemize}
+    \item Use the algorithm of Lemma \ref{lem:valid_pair} to find a valid pair of paths $P'_1$ and $P'_2$ for $V$ that minimizes $|P'_2|$. 
+    \item Update $V$ using the algorithm of Lemma \ref{lem:update_V}.
+\end{itemize}
+Finally, the algorithm returns the minimum length detour found during the execution.
+
+\section*{Proof of Lemma \ref{lem:update_V}}
+Let us now turn our attention to the proof of Lemma \ref{lem:update_V}. We will use the following result from Thomassen about the two disjoint paths problem in DAG (see also Seymour's generalisation for a more concise proof). 
+
+\begin{lemma}\label{lem:Thomassen}
+    Let $D$ be an acyclic directed graph and let $s_1, t_1, s_2, t_2$ be four distinct vertices of $D$. There do not exist disjoint directed path from $s_1$ to $t_1$ and from $s_2$ to $t_2$ if and only if $D$ can be drawn inside a closed disc such that $s_1, s_2, t_1, t_2$ are on the boundary of the disc in this order. 
+\end{lemma}
+
+Suppose now we are given a set $V$ satisfying the condition of the lemma, meaning that there exists some shortest $st$-detour $P$ with $(u,v)$ as breaking points such that $P_1$ is entirely contained in $V$. Let $R_V$ be the set associated to $V$ and $B := \{u\} ( L'_1 \cup L'_2 \cup \dots \cup L'_{z-1} )\setminus R_V$. We denote by $A$ the vertices of $B$ reachable from $u$ in $D'[B]$. Consider now $P_2$ the $uv$-path of $P$. By definition of $R_V$, the final part of $P_2$ must be contained in $R_V$. Let $x$ be the first vertex of $P_2 \cap R_V$ and let $y$ be the predecessor of $x$ in $P_2$. Since $u \in A$ and by definition of $A$, we have that $y \in A$. We will distinghuish two cases depending on whether $yx$ is a backward arc or a forward arc. 
+
+\begin{claim}
+If $yx$ is a backward arc, then there exists a valid pair for $V$ that gives rises to a shortest $st$-detour. 
+\end{claim}
+
+\begin{proof}
+    Indeed, by definition of $R_V$, there exists two disjoint paths $P_{s,u}$ and $P_{x,v}$ in $D'$ that only uses forwards arcs. Moreover, we have that $P_{s,u}$ is entirely contained in $V$ and $P_{x,v}$ is entirely contained in $R_V$. Therefore, the pair $(P_{s,u}, P_2[u,y] \odot yx \odot P_{x,v})$ is a valid pair for $V$ that gives rises to a shortest $st$-detour. Indeed, $|P_{s,u}| = P_1$, and $|P_{x,v}| \leq P_2[x,v]$ by definition of $P_{x,v}$. Therefore, $|P_{s,u}| + |P_2[u,y]| + 1 + |P_{x,v}| \leq |P_1| + |P_2|$.
+\end{proof}
+
+Using the previous claim and the assumption that no valid pair for $V$ gives rises to a shortest $st$-detour, we deduce that $yx$ is a \textbf{forward} arc. Remember that we can always assume that every vertex of $V$ belongs to a $st$ path using only forward arcs. Let $X$ denote the set of vertices in $V$ that belong to a $Au$-path using only forward arcs in $D'$. Since $yx$ is a forward arc, we have that this set is non-empty. Let $D_{V}$ be the digraph defined as follows: 
+
+\begin{itemize}
+    \item The vertex set of $D_V$ is the union $X$, $s,u,v$ and one vertex $a$ representing all the vertices in $A$.  
+    \item For every pair $c,b$ of elements of $D_V$, there exists an arc $cb$ in $D_V$ if there exists a $cb$-path in $D'$ using only forward arcs and whose internal vertices are not in $D_V$.
+    \item For every vertex $c \in X \cap A$ , there exists an arc $ac$ in $D_V$.
+\end{itemize}
+
+
+\begin{lemma}
+    There do not exist two disjoint paths $P_{s,u}$ and $P_{a,v}$ in $D_V$.
+\end{lemma}
+
+\begin{proof}
+    
+\end{proof}
+
+In order to use Lemma \ref{lem:Thomassen}, we need to make sure that the vertices of $D_V$ outside of $a,s,u$ and $v$ have indegree and outdegree at least 2. To do so, we will simply contract every arc $bc$ where $b$ has outdegree 1 or $c$ has indegree 1. Let $\tilde{D_V}$ be the resulting graph,  note that $\tilde{D_V}$ is still acyclic since $D_V$ is acyclic. By Lemma \ref{lem:Thomassen}, we can draw $\tilde{D_V}$ in a disc such that $a,s,u,v$ are on the boundary of the disc in this order. Let $C_1$ be the clockwise arc of the boundary from $a$ to $u$ and let $C_2$ be the clockwise arc of the boundary from $u$ to $s$. 
+
+\end{document}
