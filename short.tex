@@ -44,7 +44,8 @@ hyperfigures
 \newtheorem{open}[theorem]{Open Problem}
 \newtheorem{problem}[theorem]{Problem}
 \newtheorem{question}[theorem]{Question}
-\title{On finding non-shortests path in directed graphs}
+\newtheorem{assumption}{Assumption}
+\title{On finding non-shortest paths in directed graphs}
 \author{}
 \date{}
 \newcommand{\cst}{c}
@@ -57,7 +58,7 @@ hyperfigures
 \begin{document}
 \maketitle 
 
-We use $\odot$ for concatenation of paths.
+We use $\odot$ for concatenation of paths. By simplifying an $st$-walk, we mean removing cycles to get an $st$-path. We define the level of a vertex by its distance from $s$.
 
 \begin{theorem}\label{proof:main} 
    Shortest detour can be solved in polynomial time. 
@@ -65,13 +66,13 @@ We use $\odot$ for concatenation of paths.
 
 Let $D = (V,A)$ be a directed graph with $n$ vertices and $m$ arcs, and $s,t \in V(D)$. We assume that there exists at least one $st$-path in $D$. The goal is to find an $st$-path which is not a shortest $st$-path. We denote by $d(u,v)$ the length of a shortest $uv$-path. A $uv$-\textit{detour} is a $uv$-path whose length is strictly greater than $d(u,v)$.
 
-Let $L_i$ denote the set of vertices at distance $i$ from $s$ and let $V'$ denote the set of vertices that belong to a shortest $st$-path. We denote by $L'_i = L_i \cap V'$ and note that $L'_1, \dots, L'_t$ is a partition of $V' \setminus \{s,t\}$ where $t = d(s,v)$. Let $D'$ denote the subgraph of $D$ induced by $V'$, where we add for every pair of vertices $uv$ of $D'$ an arc $uv$ if there exists a $uv$-path in $D$ whose internal vertices do not belong to $V'$. Let $A'$ denote the arc set of $D'$, we will associate a weight $w(uv)$ with every arc $uv$ in $A'$. 
+Let $L_i$ denote the set of vertices at distance $i$ from $s$ and let $V'$ denote the set of vertices that belong to a shortest $st$-path. We denote by $L'_i = L_i \cap V'$ and note that $L'_1, \dots, L'_{d(s,t)}$ is a partition of $V' \setminus \{s,t\}$. Let $D'$ denote the subgraph of $D$ induced by $V'$, where we add for every pair of vertices $uv$ of $D'$ an arc $uv$ if there exists a $uv$-path in $D$ whose internal vertices do not belong to $V'$. Let $A'$ denote the arc set of $D'$, we will associate a weight $w(uv)$ with every arc $uv$ in $A'$. 
 
 The arcs of $D'$ can be partitioned into three sets: 
 \begin{itemize}
-    \item Arcs of the form $uv \in$ with $u \in L'_{i}$ and $v \in L'_{i+1}$ for some $i \in [t-1]$. These arcs are called \textit{forward} arcs. The weight of these arcs is always 1.
-    \item Arcs of the form $uv$ with $u \in L'_{i}$ and $v \in L'_{j}$ for some $i,j \in [t]$ with $1 \leq j < i \leq t$. These arcs are called \textit{backward} arcs. The weight $w(uv)$ of such an arc is defined as the shortest $uv$-path in $D$ whose internal vertices do not belong to $V'$. 
-    \item Arcs of the form $uv$ with $u \in L'_{j}$ and $v \in L'_{z}$ for $1 \leq j \leq z \leq t$. These arcs are called \textit{crossing} arcs and the weight is also defined as the length of the shortest $uv$-path in $D$ whose internal vertices do not belong to $V'$.
+    \item Arcs of the form $uv$ with $u \in L'_{i}$ and $v \in L'_{i+1}$ for some $i \in [d(s,t)-1]$. These arcs are called \textit{forward} arcs. The weight of these arcs is always 1.
+    \item Arcs of the form $uv$ with $u \in L'_{i}$ and $v \in L'_{j}$ for some $i,j \in [d(s,t)]$ with $1 \leq j < i \leq d(s,t)$. These arcs are called \textit{backward} arcs. The weight $w(uv)$ of such an arc is defined as the length of the shortest $uv$-path in $D$ whose internal vertices do not belong to $V'$. 
+    \item Arcs of the form $uv$ with $u \in L'_{j}$ and $v \in L'_{z}$ for $1 \leq j \leq z \leq d(s,t)$. These arcs are called \textit{crossing} arcs and the weight is also defined as the length of the shortest $uv$-path in $D$ whose internal vertices do not belong to $V'$.
 \end{itemize}
 
 \begin{lemma}
@@ -91,7 +92,7 @@ It is clear from the definition that shortest $st$-paths in $D'$ are exactly the
     This immediately follows from the definition.
 \end{proof}
 
-Therefore, finding a shortest $st$-detour in $D'$ that uses crossing arcs can easily be done by taking the crossing arc $uv$ with $u \in L'_{j}$ and $v \in L'_{z}$ for $1 \leq j \leq t$ that minimizes $w(uv) - (z-j)$. The rest of the proof focuses on finding a shortest $st$-detour in $D'$ that does not use crossing arcs, so we might assume that this set is empty.
+Therefore, finding a shortest $st$-detour in $D'$ that uses crossing arcs can easily be done by taking the crossing arc $uv$ with $u \in L'_{j}$ and $v \in L'_{z}$ for $1 \leq j \leq d(s,t)$ that minimizes $w(uv) - (z-j)$. The rest of the proof focuses on finding a shortest $st$-detour in $D'$ that does not use crossing arcs, so we can assume that this set is empty.
 
 Let $P$ be a shortest $st$-detour in $D'$, $P$ must then be using at least one backward arc. Let $u$ be the tail of the first backward arc of $P$ and denote by $z$ the integer such that $u \in L'_z$. Let $v$ be the second vertex of $P$ in $L'_z$. By definition, we know that $P[u,v]$ is entirely contained in $L'_1, \dots, L'_{z-1}$ and therefore by minimality, $P[v,t]$ is a shortest $vt$-path in $D'$. This motivates the following definition.
 
@@ -99,41 +100,155 @@ Let $P$ be a shortest $st$-detour in $D'$, $P$ must then be using at least one b
     Let $P$ be a $st$-detour in $D'$ and let $u$ and $v$ be two distinct vertices of $P$ in the same level $L'_z$ for some $z \in [t]$. We say that $(u,v)$ are the \textit{breaking points} of $P$ if $P[s,u]$ is a shortest $su$-path, $P[u,v]$ is entirely contained in $L'_1, \dots, L'_{z-1}$ and $P[v,t]$ is a shortest $vt$-path in $D'$.
 \end{definition}
 
-By the previous discussion, we know that any shortest $st$-detour $P$ in $D'$ must have two breaking points and the algorithm will work by enumerating all possible pairs.
+By the previous discussion, we know that any shortest $st$-detour $P$ in $D'$ must have two breaking points and the algorithm will proceed by enumerating all possible pairs.
 
-Let us now fix $u$ and $v$ two vertices in $L'_z$ and let us assume $(u,v)$ are the breaking points of the shortest detour $P$. Note that by definition, $P[v,t]$ can be replaced by any shortest $vt$-path in $D'$. Therefore, the problem reduces to finding two disjoint paths $P_1$, $P_2$, where $P_1$ is a shortest $su$-path and $P_2$ is a $uv$-path entirely contained in $L'_1, \dots, L'_{z-1}$. Note that, while $P_1$ only uses forward arcs, $P_2$ must use at least one backward arcs, and possibly many. For every $uv$ path $P'$, if we denote by $xy$ the last backward arc of $P'$, then we will say that $P'[y,v]$ is the \textit{final part} of $P'$. In a way, when looking for $P_1$ and $P_2$, we do not really need $P_1$ and $P_2$ to be disjoint, but rather that $P_1$ and the \textbf{final part} of $P_2$ are disjoint. Indeed, suppose that $P'_1$ is a $su$-path using only forward arcs, and $P'_2$ is a $uv$-path whose final part is disjoint from $P'_1$ and only uses vertices in $L'_1, \dots, L'_{z-1}$ as internal vertices. Let $xy$ be the last backward arc of $P'_2$, then $P'_1$ and $P'_2[y,v]$ are disjoint. Now if $P'_1$ and $P'_2[u,y]$ intersect, we can extract from this closed walk a $sy$-path $P_{s,y}$ which is interally contained in $L'_1, \dots, L'_{z-1}$
-Therefore, if $P_3$ denote any shortest $vt$-path in $D'$, then the union of $P_{s,y}$, $xy$, $P'_2[y,v]$ and $P_3$ is a $st$-path which uses at least one backward arc, and there it is a $st$-detour (TODO: figure). Note that this detour can have a different pair of breaking points, but this does not matter as we are enumerating over all possible pairs.
+Let us now \textbf{fix} $u$ and $v$ two vertices in $L'_z$ such that $(u,v)$ are the breaking points of the shortest detour $P$. Note that by definition, $P[v,t]$ can be replaced by any shortest $vt$-path in $D'$. Therefore, the problem reduces to finding two disjoint paths $P_1$, $P_2$, where $P_1$ is a shortest $su$-path and $P_2$ is a $uv$-path entirely contained in $L'_1, \dots, L'_{z-1}$. Note that, while $P_1$ only uses forward arcs, $P_2$ must use at least one backward arc, and possibly many. For every $uv$ path $P'$, if we denote by $xy$ the last backward arc of $P'$, then we will say that $P'[y,v]$ is the \textit{final part} of $P'$. In a way, when looking for $P_1$ and $P_2$, we do not really need $P_1$ and $P_2$ to be disjoint, but rather that $P_1$ and the \textbf{final part} of $P_2$ are disjoint. Indeed, suppose that $P'_1$ is a $su$-path using only forward arcs, and $P'_2$ is a $uv$-path whose final part is disjoint from $P'_1$ and only uses vertices in $L'_1, \dots, L'_{z-1}$ as internal vertices. Let $xy$ be the last backward arc of $P'_2$, then $P'_1$ and $P'_2[y,v]$ are disjoint. Now if $P'_1$ and $P'_2[u,y]$ intersect, we can extract from this closed walk a $sy$-path $P_{s,y}$ which is internally contained in $L'_1, \dots, L'_{z-1}$.
+Therefore, if $P_3$ denotes any shortest $vt$-path in $D'$, then the union of $P_{s,y}$, $xy$, $P'_2[y,v]$ and $P_3$ is a $st$-path which uses at least one backward arc, and therefore it is an $st$-detour (TODO: figure). Note that this detour can have a different pair of breaking points, but this does not matter as we are enumerating over all possible pairs.
 
 %Note that Abusing notation, all the detours mentionned in this section will concern detours with $(u,v)$ as breaking points. So in particular, when we say shortest detour, we mean shortest detour with $(u,v)$ as breaking points.
 
-The algorithm will proceed in iterations, where at each iteration, it will maintain a set of vertices $F$ that can be used for the final part of $P_2$. More precisely, a subset $F$ of $L'_1, \dots, L'_{z-1}$ is said to be \textit{safe} if, for every $r \in F$, there exists two disjoint paths $P_{r,v}$ and $P_{s,u}$ using only forward arcs in $D'$ where $P_{r,v}$ is a $rv$-path and $P_{u,v}$ is a $su$-path. Moreover, we require that $P_{r,v}$ is contained in $F$. At the beginning, $F$ will simply be initialized as the set of all vertices in $L'_1, \dots, L'_{z-1}$ that satisfy these conditions. Because we are only using forward arcs, finding such paths can be done in polynomial time using the standard disjoint paths in DAGs algorithm. Moreover, note that by definition, the final part of $P_2$ is entirely contained in $F$. Throughout the algorithm, the set $F$ will be updated by removing vertices, while maintaining the property that the final part of $P_2$ is contained in $F$. 
+The algorithm will proceed in iterations, where at each iteration, it will maintain a set of vertices $O$ that can be used for the $su$-path $P_1$. For a set $O$, we define $I_O$ as the set of vertices $r$ of $L'_1, \dots, L'_{z-1}$ such that there exists two disjoint paths $P_{r,v}$ and $P_{s,u}$ using only forward arcs in $D'$ with the following property: 
+
+\begin{itemize}
+    \item $P_{r,v}$ is a $rv$-path such that $O \cap P_{r,v}$ is a subpath of $P_{r,v}$
+    \item $P_{s,u}$ is a $su$-path using only vertices in $O$ as internal vertices
+\end{itemize}
+
+We say that $I_O$ is the set \textit{associated} to $O$ and the paths $P_{r,v}$ and $ P_{s,u}$ are said to \textit{certify} the membership of $r$ in $I_O$.
+Because we are only using forward arcs, finding the set $I_O$ can always be computed via the standard disjoint pahts in DAGs algorithm (TODO, maybe expand for the subpath thing). We say that a set $O$ is \textit{safe} if $P_1$ is contained in $O$ and the final part of $P_2$ is contained in $I_O$ and intersects $O$ on a subpath. The following lemma follows easily from the definition. 
+
+\begin{lemma}\label{lem:start_O}
+   The set $O$ defined as the subset of vertices of $L'_1, \dots, L'_{z-1}$ that belong to a $su$-path in $D'$ is safe.
+\end{lemma}
+
+The algorithm will then start with the set $O$ defined as in Lemma \ref{lem:start_O} and its goal will be to remove elements of $O$, while ensuring it stays safe, until it finds an $st$-detour.
 
 Let us start with the following easy remark:
 
-\begin{proposition}\label{pro:F}
-   Suppose $F$ is a safe subset of vertices of $L'_1, \dots, L'_{z-1}$ and $x$ is an element of $F$ that can be reached from $u$ in $L'_1, \dots, L'_{z-1}$ via a path $H$ such that: 
+\begin{proposition}\label{pro:IO}
+   Let $O$ be a safe subset of vertices of $L'_1, \dots, L'_{z-1}$ and $x$ is an element of $O$ that can be reached from $u$ in $L'_1, \dots, L'_{z-1}$ via a path $H$ such that: 
    \begin{itemize}
-    \item The internal vertices of $H$ are $F$-free
+    \item The internal vertices of $H$ are $I_O$-free
     \item The last arc of $H$ is a backward arc $yx$.
    \end{itemize}
-   Then, denoting $P_{x,v}$ and $P_{s,u}$ the two paths certifying that $x \in F$, the $sv$-path obtained by simplifying $P_{s,u} \cdot H \cdot P_{x,v}$ is enterely contained in $(L'_1, \dots, L'_{z-1})$ and is longer than $d(s,v)$
+   Then, denoting $P_{x,v}$ and $P_{s,u}$ the two paths certifying that $x \in I_O$, the $sv$-path obtained by simplifying $P_{s,u} \cdot H \cdot P_{x,v}$ is entirely contained in $(L'_1, \dots, L'_{z-1})$ and is longer than $d(s,v)$
 \end{proposition}
 
-
-
-At each iteration, the algorithm will start by computing the set of vertices $A_F$ that can be reached in $L'_1, \dots, L'_{z-1}$ from $u$ by paths avoiding $F$ for internal vertices and such that the last arc is a backward arc. This set can easily be computed with standard reachability algorithms. By proposition \ref{pro:F}, if $A_F \cap F$ is non-empty, then we can easily find a $st$-detour and the algorithm stops. Suppose now that $F \cap A_F$ is empty and remember that the algorithm invariant states that the final part of $P_2$ is contained in $F$. What this means is that the path $P_2$ cannot completely avoid $F$ before its final part and the algorithm will try to find elements of $F$ that can be identified as not belonging to this final part, which means it can safely be removed from $F$. This is the goal of the next lemma
-
+At each iteration, the algorithm will start by computing the set of vertices $A_O$ that can be reached in $L'_1, \dots, L'_{z-1}$ from $u$ by paths avoiding $I_O$ for internal vertices and such that the last arc is a backward arc. This set can easily be computed with standard reachability algorithms. By proposition \ref{pro:IO}, if $A_O \cap O$ is non-empty, then we can easily find a $st$-detour and the algorithm stops. Suppose now that $O \cap A_O$ is empty and remember that the algorithm invariant states that the final part of $P_2$ is contained in $I_O$. What this means is that the path $P_2$ cannot completely avoid $I_O$ before its final part and the algorithm will try to use this information to remove elements of $O$. This is the main goal of the following lemma. 
 
 \begin{lemma}
-    There is a linear time algorithm which, assuming $F$ is a safe subset such that the final part of $P_2$ is contained in $F$, either finds a $st$-detour or outputs a subset $F' \subset F$ such that the final part of $P_2$ is contained in $F'$.
+    There is a polynomial time algorithm which, given some safe set $O$, either finds an $st$-detour or outputs a subset $O' \subset O$ such that $O'$ is safe.
 \end{lemma}
 
 \begin{proof}
-    Let $R$ denote the set of vertices of $L'_1, \dots, L'_{z-1}$ reachable in $D' \setminus F$ from $u$. The algorithm start by checking, if there exists a backward arc $xy$ from $R$ to $F$. If such an arc exsists, the algorithm then outputs the path obtained, using the same notation as Proposition \ref{pro:F}, by simplying $P_{s,u} \cdot H \cdot P_{x,v}$ and concatenating any shortest $vt$ path in $D$. By Proposition \ref{pro:F}, this is a $st$ detour and the algorithm terminates
+    Let $R_O$ denote the set of vertices of $\{L'_1, \dots, L'_{z-1} \} \cup \{u\}$ reachable in $D' \setminus I_O$ from $u$. Let $A_O$ denote the set of vertices reachable from $R_O$ by a backward arc. The algorithm starts by checking if there exist two disjoint paths, one from $s$ to $t$ and one from $A_0$ to $v$ using only forwards arcs in $D'$. If these paths exist, then we can easily obtain an $st$-detour as in the proof of Proposition \ref{pro:IO}(TODO: clean this), and this algorithm simply outputs this detour.
+
+
+
+    \begin{assumption}\label{ass:no_path_pair}
+        There are no two disjoint paths, one from $s$ to $t$ and one from $A_0$ to $v$, using only forward arcs in $D'$.
+    \end{assumption}
     
-    Suppose now that no such element exists and consider the first element $x$ of $P_2$ that does not belong to $R$. By definition of $R$, $x$ must then belong to $F$, and moreover, the arc $yx$ before $x$ on $P_2$ must be a forward arc. Let $F_R$ denote the set of elements of $F$ for which there exists a forward arc with tail in $R$. By the previous discussion $x$ must belong to $F_R$. Let $z \in L'_j$ be an element of $R_F$ that maximizes $j$, we claim that the last part of $P_2$ cannot use  
+    Under Assumption~\ref{ass:no_path_pair}, consider the first element $x$ of $P_2$ that does not belong to $R$. By definition of $R$, $x$ must then belong to $I_O$, and moreover, the arc $yx$ before $x$ on $P_2$ must be a forward arc. Consider, in $O$, the set $B_O$ of elements $y \in O$ such that there exists an $(A_O,y)$ forward path in $D'$ that is internally disjoint from $O$. It contains in particular the set $A_O \cap O$. We also let $C$ denote $I_O \cap O$. It is easy to see that the maximal forward path of $P_2$ that contains $x$ must contain a path from $B_O$ to $C$ in $O$ using only forward arcs. We will use this insight to find the elements to remove from $O$. Abusing notation, we will use $O$ to denote the DAG induced on the vertex set $O$ by the forward arcs. We say that a vertex $a$ is \textit{above} the vertex $b$ on $O$ if it belongs to a level $L'_j$ smaller than the one of $b$. 
+
+    The algorithm will compute a sequence of vertices $x_1, \dots, x_r$ of increasing levels such that with the following properties: 
+    \begin{itemize}
+        \item For every $i \in [r]$ there exists a vertex $b_i$ from $B_0$ such that every $b_iu$ path in $O$ goes through $x_i$.
+        \item For every $i \in [r]$, every $sx_i$-path in $O$ intersects all the $(B_O,C)$ paths of $O$ that use a vertex above $x_i$; moreover $x_i$ is not in $I_0$.  
+        \item Either $x_r$ is adjacent to $u$; or the set $X_r$ of vertices $x$ below $x_r$ such that every $su$ path in $O$ containing $x$ must contain $x_r$ is non-empty and does not contain any element of $B_O$.   
+    \end{itemize}
+
+
+    \begin{claim}
+        If this sequence exists, then $O' := O \setminus \{x_r\} \cup X_r$ is safe. 
+    \end{claim}
+
+    \begin{proof}   
+   Assume first that $x_r \in P_1$. As explained before, we know that $P_2$ contains a $(B_O, C)$ path in $O$ which is disjoint from $P_1$. By the properties of $x_r$ and $X_r$ we have that the first element $x'$ of this path must be an element of $B_O$ which is not above $x_r$ and cannot belong to $X_r$. Let $P_x'$ be the path in $O$ from $x'$ to some vertex $y'$ in $C$ disjoint from $P_1$. This path is also disjoint from $X_r$. Indeed, since $x'$ is not above $x_r$ and does not belong to $X_r$, it means there exists a path from $s$ to $x'$ that does not contain $x_{r}$. Now if you could reach a vertex $y \in X_r$ from $x'$, this would mean there exists a path from $s$ to $X_r$ which avoids $x_r$, and this is not possible. This means that, denoting $P'_1$ the $st$ path obtained from $P_1$ by replacing the $x_rt$ subpath by a subpath in $X_r$, we still have that $P'_1$ and $P_x'$ are disjoint. 
+   
+   
+   Now $y'$ belongs to $I_O$ which means that there exists a path $P_{y',v}$ in $D'$ using only forward arcs and such that $P_{y',v} \cap O$ is a subpath. Since $y' \in O$ this path is actually a prefix. Moreover, this prefix cannot intersect $X_r$ and we can conclude that $P_{y',v}$ is disjoint from $P'_1$. Therefore, the path $P_x' \cdot P_{y',v}$ is a $(B_O,v)$ path which is disjoint from $P'_1$, which is not possible by assumption. This means that $P_1$ cannot use $x_r$ and thus $X_r$.
+   Now $y'$ belongs to $I_O$ which means that there exists a path $P_{y',v}$ in $D'$ using only forward arcs and such that $P_{y',v} \cap O$ is a subpath. Since $y' \in O$ this path is actually a prefix. Moreover, this prefix cannot intersect $X_r$ and we can conclude that $P_{y',v}$ is disjoint from $P'_1$. Therefore, the path $P_x' \cdot P_{y',v}$ is a $(B_O,v)$ path which is disjoint from $P'_1$, which contradicts Assumption~\ref{ass:no_path_pair}. This means that $P_1$ cannot use $x_r$ and thus $X_r$.
+
+   In order to show that $O'$ is safe, we must now show that the final part of $P_2$ is contained in $I_{O'}$ and intersects $O'$ on a subpath. If this final part does not intersect $\{x_r\} \cup X_r$, then nothing needs to be done, so let us assume that it does and let $P'_2$ denote this intersection. First, since $P'_2$ is contained in $I_O$ and $x_r \not \in I_O$, we have that $x_r \not \in P'_2$. Moreover, the only arcs from $O \setminus X_r$ to $X_r$ have $x_r$ as tail. This means that, if $P'_2$ intersects $X_r$, then the first vertex of $P'_2$ must belong to $X_r$. However, since there is no arc from $O \setminus X_r$ to $X_r$ not using $x_r$, it means that $P'_2 \cap X_r$ is a prefix of $P'_2$ and therefore, the intersection of the final part of $P_2$ with $O'$ coresponds to $P'_2 \setminus X_r$, which is still a subpath of $P_2$. 
 \end{proof}
 
+Let us now show how the algorithm can construct the sequence of vertices $x_1, \dots, x_r$. Let $A_0$ be the set of maximal elements of $B_O$ on $O$ viewed as a partial order. In other words, every element of $B_O \setminus A_0$ is reachable from $A_0$ by a path in $O$ and no path exists in $O$ between two distinct elements of $A_0$. Let $R_v$ denote the set of vertices $r$ of $O$ such that there exists an $(r,v)$ forward path in $D'$ which is internally disjoint from $O$. 
+
+\begin{claim}
+    The maximum vertex flow in $O$ between $A_0$ and $\{u\} \cup R_v$ is at most $1$.
+\end{claim}
+
+\begin{proof}
+Indeed, suppose that this is not the case and there exists two elements $a_1, a_2$ in $A_0$ as well as two disjoint paths $P_{a_1, u}$ and $P_{a_2,v'}$ such that: 
+\begin{itemize}
+    \item $P_{a_1, u}$ is a $(a_1,u)$-path 
+    \item $P_{a_2,v'}$ is a $(a_2, v')$-path for some element $v' \in R_v$.
+\end{itemize}
+
+Then by definition of $A_0$, any path $P_{s,a_1}$ between $s$ and $a_1$ in $O$ must be disjoint from $P_{a_2,v'}$. Finally, if we let $P_{v',v}$ denote any $(v',v)$ forward path in $D'$ internally disjoint from $O$, we have that $P_{s, a_1} \cdot P_{a_1,u}$ and $P_{a_2,v'} \cdot P_{(v',v)}$ are disjoint which is a contradiction. 
+Then by definition of $A_0$, any path $P_{s,a_1}$ between $s$ and $a_1$ in $O$ must be disjoint from $P_{a_2,v'}$. Finally, if we let $P_{v',v}$ denote any $(v',v)$ forward path in $D'$ internally disjoint from $O$, we have that $P_{s, a_1} \cdot P_{a_1,u}$ and $P_{a_2,v'} \cdot P_{(v',v)}$ are disjoint, which contradicts Assumption~\ref{ass:no_path_pair}. 
+\end{proof}    
+
+Therefore, by Menger's theorem, there exists a vertex separator $x_1$ between $A_0$ and $\{u\} \cup R_v$ in $O$. Let us now show that $x_1$ satisfies the first two properties required by the elements of the desired sequence $x_1, \dots, x_r$. The first property follows immediately from the fact that $x_1$ separates $A_0$ from $\{u\}$. 
+
+Consider now some $(B_O, C)$-path $P$ in $O$ from some $b \in B_0$ above $x_1$ to some vertex $c \in I_0$. Since we know that there exists a path $P_c$ from $c$ to $R_v$ in $O$ and a path $P_b$ from $A_0$ to $b$, we get that $P_b \cdot P \cdot P_c$ is a $(A_0, R_v)$-path in $O$, which means that $x_1$ belongs to it. If the level of $c$ is lower than the level of $x_1$, then we know directly that $x_1 \in P$ which is what we wanted to show. In order, to conclude, let us assume that the level of $c$ is higher than the level of $x_1$ and remember that $P_b \cdot P$ is a $(A_0, c)$-path in $O$. As $c \in I_0$, consider $P_c$ and $P_{s,u}$ the certifying paths of $c$. Remember that $P_{v'} := P_c \cap O$ is a subpath, and since $c \in O$, it means that $P_{v'}$ is a path from $c$ to some vertex $v' \in R_v$. Now there are two cases. Either $P_b \cdot P$ is disjoint from $P_{s,u}$, but this means that $P_b \cdot P \cdot P_{v'}$ is a $(A_0, R_v)$ forward path disjoint from the $(u,v)$-path $P_{s,u}$, which we assumed is not possible. The other case is that $P_b \cdot P$ intersects $P_{s,u}$, but then this would contradict the fact that $x_1$ separates $A_0$ from $\{u\} \cup R_V$. That last case also implies that $x_1$ does not belong to $I_0$.
+Consider now some $(B_O, C)$-path $P$ in $O$ from some $b \in B_0$ above $x_1$ to some vertex $c \in I_0$. Since we know that there exists a path $P_c$ from $c$ to $R_v$ in $O$ and a path $P_b$ from $A_0$ to $b$, we get that $P_b \cdot P \cdot P_c$ is a $(A_0, R_v)$-path in $O$, which means that $x_1$ belongs to it. If the level of $c$ is lower than the level of $x_1$, then we know directly that $x_1 \in P$ which is what we wanted to show. In order, to conclude, let us assume that the level of $c$ is higher than the level of $x_1$ and remember that $P_b \cdot P$ is a $(A_0, c)$-path in $O$. As $c \in I_0$, consider $P_c$ and $P_{s,u}$ the certifying paths of $c$. Remember that $P_{v'} := P_c \cap O$ is a subpath, and since $c \in O$, it means that $P_{v'}$ is a path from $c$ to some vertex $v' \in R_v$. Now there are two cases. Either $P_b \cdot P$ is disjoint from $P_{s,u}$, but this means that $P_b \cdot P \cdot P_{v'}$ is a $(A_0, R_v)$ forward path disjoint from the $(s,u)$-path $P_{s,u}$, which contradicts Assumption~\ref{ass:no_path_pair}. The other case is that $P_b \cdot P$ intersects $P_{s,u}$, but then this would contradict the fact that $x_1$ separates $A_0$ from $\{u\} \cup R_v$. That last case also implies that $x_1$ does not belong to $I_0$.
+
+
+So now that we have shown how the algorithm can construct $x_1$, let us assume that it has constructed a sequence of vertices $x_1, \dots, x_j$ of increasing levels such that for all of $ i\in [j]$, the first two properties are satisfied. In particular: 
+    \begin{itemize}
+        \item There exists a vertex $b_{j}$ in $B_O$ such that every $b_{j}u$-path in $O$ goes through $x_{j}$.
+        \item Every $sx_j$-path in $O$ intersects all the $(B_0,C)$ paths of $O$ that use a vertex above $x_j$; moreover $x_j$ is not in $I_0$.  
+    \end{itemize}
+
+Let us now show how to construct $x_{j+1}$. Here there are basically two cases. The first one is if $X_r$ of vertices $x$ below $x_r$ such that every $st$ path in $O$ containing $x$ must contain $x_r$ is non-empty. Note that such a set, if it exsists can easily be found. If $X_j$ does not contain any element of $B_0$, then the sequence  $x_1, \dots, x_j$ with $r := j$ actually satisfies all the desired properties, and we are done. So let us assume that this is not the case and denote by $A_j$ the set of maximal elements of $B_0$ inside $X_{j}$. Again, we can show that the maximal flow between $A_{j}$ and $\{u\} \cup R_v$ is at most one and there exists a vertex $x_{j+1}$ separating $A_j$ from $\{u\} \cup R_v$. Using the exact same argument as for $x_1$, we can show that: 
+
+\begin{itemize} 
+    \item There exists a vertex $b_{j+1}$ in $B_O$ such that every $b_{j+1}u$-path in $O$ goes through $x_{j+1}$. 
+    \item For every $i \in [r]$, every $sx_{j+1}$-path in $O$ intersects all the $(B_0,C)$ path of $O$ that use a vertex of $X_j$ above $x_{j+1}$; moreover $x_{j+1}$ is not in $I_0$.
+\end{itemize}
+
+Moreover, since we know that every $sx_{j+1}$ path must go through $x_{j}$, we have that every $sx_{j+1}$-path in $O$ intersects all the $(B_O,C)$ paths of $O$ that use a vertex above $x_{j}$, or $x_{j}$ himself. To conclude that case, we have to consider only $(B_O,C)$-paths that uses a vertex above $x_{j+1}$, disjoint from $X_{j} \cup \{x_j \}$ but not above $x_j$. Let $P$ denote such path with some $c \in I_O$ as endpoint. Moreover, assume that there exists a path $P_j$ from $s$ to $x_{j+1}$ which is disjoint from $P$. By definition of $I_0$, there exists a path $P_c$ from $c$ to $v$ such that the intersection $P'_c$ with $O$ is a prefix of $P$. Because $c$ is not above $x_j$ and is not in $X_j$, it means that there exists a path from $s$ to $c$ that is disjoint from $x_j$. Therefore, if $P'_c$ intersects $X_j$, it means that we can find a path in $O$ from $s$ to $X_j$ which is $x_j$ free, and this is not possible. So $P'_c$ is disjoint from $X_j$ and thus, 
+if we denote by $P'_j$ the path obtained from $P_j$ by extending it into an $su$-path using vertices in $X_j$, we get that $P'_j$ is a $su$-path disjoint from the $(A_0,v)$ path $P \cdot P_c$, which contradicts Assumption~\ref{ass:no_path_pair}.
+
+Finally, let us assume that the set $X_j$ is empty and consider $O_j$ the subset of vertices that belongs to a $su$-path in $O$ disjoint from $x_j$. Let $T_j := O \setminus O_j$ and note that elements of $T_j$ are exactly the elements $y$ such that every $sy$ paths in $O$ must contain $x_j$. Let $B_j$ the set of elements of $O_j$ containing $O_j \cap B_O$ and the set of elements of $O_j$ such that there exists a path from $x_j$ or $B_O \cap T_j$ with internals vertices in $T_j$. Let $A_j$ now denote the set of maximal elements of $B_j$ when considering $O_j$ as a partial order. The idea here will to use the same argument as for $x_1$, using $A_j$ instead of $A_1$. Remember, that there exists a vertex $b_j \in B_O$ such that 
+
+\begin{claim}
+    The maximum vertex flow between $A_j$ and $\{u\} \cup R_v$ in $O_j$ is at most one
+\end{claim}
+
+\begin{proof}
+Indeed, suppose that this is not the case and there exists two elements $a_1, a_2$ in $A_j$ as well as two disjoint paths $P_{a_1, u}$ and $P_{a_2,v'}$ such that: 
+\begin{itemize}
+    \item $P_{a_1, u}$ is a $(a_1,u)$-path 
+    \item $P_{a_2,v'}$ is a $(a_2, v')$-path for some element $v' \in R_v$.
+\end{itemize}
+
+Then by definition of $A_j$, any path $P_{s,a_1}$ between $s$ and $a_1$ in $O$ must be disjoint from $P_{a_2,v'}$. Finally, if we let $P_{v',v}$ denote any $(v',v)$ forward path in $D'$ internally disjoint from $O$, we have that $P_{s, a_1} \cdot P_{a_1,u}$ and $P_{a_2,v'} \cdot P_{(v',v)}$ are disjoint. If $a_2 \in B_O$, we get a contradiction with Assumption~\ref{ass:no_path_pair}.
+If $a_2 \not \in B_O$, then there exists a path in $T_j$ from $B_O$ or $x_{j+1}$ 
+with internals vertices. In either case, we can extend $P_{a_2,v'} \cdot P_{(v',v)}$ into a path from $B_O$ to $v$ which is disjoint from $P_{s, a_1} \cdot P_{a_1,u}$ as this latter path is in $O_j$. 
+\end{proof}    
+Let $x_{j+1}$ denote the vertex separator between $A_j$ and $\{u\} \cup R_v$ in $O_j$. We claim again that $x_1, \dots, x_j, x_{j+1}$ satisfy the desired properties, which will end the proof of the lemma as computing $O_j$ and $A_j$ can easily be done in polynomial time, and thus find $x_{j+1}$ as well. 
+
+The first property is immediate. Indeed, if some element $b_{j+1} \in B_0 \cap A_j$, then it immediately satisfies said property by definition of $x_{j+1}$. Likewise, if there exists an element $x \in B_O \cap T_j$ with a path from $x$ to $A_{j}$ in $T_j$, then $x$ also satisfies this property. And finally, if all the elements of $A_j$ corresponds to extremeties of $(x_{j}, O_j)$-paths with internal vertices in $T_j$, then $b_j$ satisfies this property. 
+
+Let us now show that 
+
+
+
+\end{proof}
+
+
+
+
+
+
+
+
+
+
+\end{document}
 then there exists a $su$-path $P_{s,u}$ and a $xv$-path $P_{x,v}$ using only forward arcs in $D'$ that are disjoint. Therefore, the union of $P_{s,u}$, $P_2[u,y]$, $yx$, and $P_{x,v}$ is a $st$-detour. The second task of the algorithm is to update the set $F$ by removing vertices while maintaining the following invariant:
 
 , initialized as the union of $L'_1, \dots, L'_{z}$. It will also compute the set of vertices $I_{R} \subseteq V'$ such that for every $r \in I_R$, we can find two disjoint paths in $D'$: a $rv$-path $P_{r,v}$ and a $su$-path $P_{s,u} \subseteq R$ that uses forward arcs in $D'$. Intuitively, $I_R$ corresponds to the set of vertices that could potentially be in the last part of $P_2$. Note that because we are only using forward arcs, finding such paths can be done in polynomial time using the standard disjoint paths in DAGs algorithm. We will say that $I_R$ is the set \textit{associated} to $R$. Note that, using the previous notation, all the vertices of $P_{r,v}$ must be contained in $I_R$. Indeed, if $x \in P_{r,v}$, then $P_{r,v}[r,x]$ and $P_{s,u}$ are two disjoint paths using only forward arcs.
@@ -167,6 +282,7 @@ Using the algorithm of the previous lemmas, the overall algorithm for a pair $(u
 \end{itemize}
 Finally, the algorithm returns the minimum length detour found during the execution.
 
+
 \section*{Proof of Lemma \ref{lem:update_R}}
 Let us now turn our attention to the proof of Lemma \ref{lem:update_R}. Suppose now we are given a set $R$ satisfying the condition of the lemma, meaning that there exists some shortest $st$-detour $P$ with $(u,v)$ as breaking points such that $P_1$ is entirely contained in $R$. Let $I_R$ be the set associated to $R$ and $B := \{u\} \cup ( L'_1 \cup L'_2 \cup \dots \cup L'_{z-1} )\setminus I_R$. Let us denote by $A$ the vertices of $B$ reachable from $u$ in $D'[B]$. Consider now $P_2$ the $uv$-path of $P$. By definition of $I_R$, the final part of $P_2$ must be contained in $I_R$. Let $x$ be the first vertex of $P_2 \cap I_R$ and let $y$ be the predecessor of $x$ in $P_2$. Since $u \in A$ and by definition of $A$, we have that $y \in A$. We will distinghuish two cases depending on whether $yx$ is a backward arc or a forward arc.
 
@@ -197,9 +313,3 @@ Using the previous claim and the assumption that no valid pair for $R$ gives ris
 
     Assume now that the vertices $s_0, s_1, \dots s_j$ have been constructed for some $h \geq 1$ such that all the last two properties of the lemma hold for every $i \in [j]$ but $F_A \setminus (D_1, \cup D_2, \cdot, \cup D_{j})$ is not empty.  We will show how to construct $s_{j+1}$ in a similar way to $s_1$. Consider $F_{A_j}$ the set of vertices of $F_A$ that are reachable from $s_j$ in $D''$ by a path which is internally disjoint from $F_A$. Again, the maximum flow in $D''$ between $F_{A_j}$ and $\{u\} \cup I'_R$ is $1$. Indeed, suppose there exists a path $H_1$ from $x \in F_{A_j}$ to $u$ and a path $H_2$ from $y \in F_{A_j}$ to $I'_R$ that are disjoint. Since $x \in F_{A_j}$, there exists a path $H$ from $s_j$ to $x$ in $D''$ which is  disjoint from $y$ and therefore $H \odot H_2$ is a $(s_j,v)$-path in $D''$ which is disjoint from the $(F_A,v)$ path $H_1$. Moreover, since $D''$ is a DAG and $y$ is reachable from $s_j$, any $ss_j$ path is $D''$ must also be disjoint from $H_1$, which contradicts the fact that every $su$ path in $D''$ intersects every $(F_A,I'_R)$-path. Therefore, by Menger's theorem, there exists a vertex $s_{j+1}$ that separates $F_{A_j}$ from $\{u\} \cup I'_R$. Let $D_{j+1}$ be the set of vertices on a path from $s_j$ to $s_{j+1}$ in $D''$, we will show that $D_{j+1}$ and $s_{j+1}$ satisfy the last two properties of the claim. Again, the last property directly follows from the fact that $s_{j+1}$ is a $(F, I'_R)$ Suppose first that $a \in F_A \setminus (D_1, \cup D_2, \cup D_{j} \cup D_{j+1})$ and consider a path $H$ from $s$ to $a$. By definition of $F_{A_j}$, we know that some vertex $x \in F_{A_j}$ must belong to that path. Moreover, by definition of $D''$, this path can be extended into a $su$ path, which means that $s_{j+1}$ must belong to that path, and since $a \not \in (D_1, \cup D_2, \cup D_{j} \cup D_{j+1})$, it must appear before $s_{j+1}$ on that path. Therefore, $s_{j+1}$ is a vertex cut between $s$ and $F_A \setminus (D_1, \cup D_2, \cup D_{j})$. Finally, the fact that $D_{j+1}$ is disjoint from $I'_R$ and every $(D_{j+1},I'_R)$-path intersects $s_{j+1}$ follows from the definition of $s_{j+1}$.
 \end{proof}
-
-
-
-
-
-\end{document}
